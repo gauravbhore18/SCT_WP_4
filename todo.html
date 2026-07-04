@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To Do List App</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Blue-green diagonal gradient matching the screenshot */
+      background: linear-gradient(135deg, #3a6fbf 0%, #4a90c0 20%, #6aaa80 55%, #a8c840 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 18px;
+      padding: 24px 20px 28px 20px;
+      width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 18px;
+      letter-spacing: 0.3px;
+    }
+
+    .card-title .icon {
+      font-size: 22px;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .input-row input[type="text"] {
+      flex: 1;
+      min-width: 0;          /* crucial: lets flex item shrink below content size */
+      padding: 9px 10px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.55);
+      font-size: 13px;
+      color: #333;
+      outline: none;
+    }
+
+    .input-row input[type="text"]::placeholder {
+      color: #888;
+    }
+
+    .input-row input[type="date"] {
+      flex-shrink: 0;
+      padding: 9px 6px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.55);
+      font-size: 12px;
+      color: #555;
+      outline: none;
+      width: 118px;          /* compact but readable */
+    }
+
+    .input-row button {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 8px;
+      background: #2db86b;
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .input-row button:hover {
+      background: #25a45e;
+    }
+
+    /* Task list */
+    #task-list {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.38);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+
+    .task-item .task-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .task-item .task-name { font-weight: 500; }
+    .task-item .task-date { font-size: 11px; color: #444; }
+
+    .task-item .del-btn {
+      background: rgba(200,60,60,0.75);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 13px;
+      padding: 3px 9px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .task-item .del-btn:hover { background: rgba(180,30,30,0.9); }
+
+    .task-item.done .task-name {
+      text-decoration: line-through;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="card-title">
+      <span class="icon">📋</span>
+      To Do List App
+    </div>
+
+    <div class="input-row">
+      <input type="text" id="taskInput" placeholder="Enter task..." />
+      <input type="date" id="dateInput" />
+      <button onclick="addTask()">+</button>
+    </div>
+
+    <ul id="task-list"></ul>
+  </div>
+
+  <script>
+    function addTask() {
+      const taskInput = document.getElementById('taskInput');
+      const dateInput = document.getElementById('dateInput');
+      const taskName  = taskInput.value.trim();
+      const taskDate  = dateInput.value;
+
+      if (!taskName) return;
+
+      const list = document.getElementById('task-list');
+
+      const li = document.createElement('li');
+      li.className = 'task-item';
+
+      const info = document.createElement('div');
+      info.className = 'task-info';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'task-name';
+      nameSpan.textContent = taskName;
+      nameSpan.style.cursor = 'pointer';
+      nameSpan.title = 'Click to mark done';
+      nameSpan.onclick = () => li.classList.toggle('done');
+
+      info.appendChild(nameSpan);
+
+      if (taskDate) {
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'task-date';
+        // format: dd-mm-yyyy
+        const [y, m, d] = taskDate.split('-');
+        dateSpan.textContent = `${d}-${m}-${y}`;
+        info.appendChild(dateSpan);
+      }
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del-btn';
+      delBtn.textContent = '✕';
+      delBtn.onclick = () => li.remove();
+
+      li.appendChild(info);
+      li.appendChild(delBtn);
+      list.appendChild(li);
+
+      taskInput.value = '';
+      dateInput.value = '';
+      taskInput.focus();
+    }
+
+    // Allow Enter key to add task
+    document.getElementById('taskInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addTask();
+    });
+  </script>
+
+</body>
+</html>
